@@ -1,0 +1,7 @@
+common:
+    sources:
+        board:
+            - source/board/stm32f405rg.c
+        family:
+            - source/family/st/stm32f405rg/target.c
+            
