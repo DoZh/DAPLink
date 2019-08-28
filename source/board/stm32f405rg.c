@@ -25,6 +25,6 @@
 const board_info_t g_board_info = {
     .infoVersion = 0x0,
     .board_id = "0720",
-    .family_id = kStub_HWReset_FamilyID,
+    .family_id = kStub_SWSysReset_FamilyID,
     .target_cfg = &target_device,
 };

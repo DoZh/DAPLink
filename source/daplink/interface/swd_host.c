@@ -1034,6 +1034,16 @@ uint8_t swd_set_target_state_sw(TARGET_RESET_STATE state)
             break;
 
         case RESET_RUN:
+
+            // Perform a soft reset
+            if (!swd_read_word(NVIC_AIRCR, &val)) {
+                return 0;
+            }
+            if (!swd_write_word(NVIC_AIRCR, VECTKEY | (val & SCB_AIRCR_PRIGROUP_Msk) | soft_reset)) {
+                return 0;
+            }
+            osDelay(2);
+
             swd_set_target_reset(1);
             osDelay(2);
             swd_set_target_reset(0);
