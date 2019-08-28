@@ -35,8 +35,15 @@
 #include "DAP_config.h"
 #include "DAP.h"
 #include "info.h"
+#include "swd_host.h"
+#include "debug_cm.h"
 
 #define DAP_FW_VER      "1.10"  // Firmware Version
+
+// Default NVIC and Core debug base addresses
+#define NVIC_Addr    (0xe000e000)
+#define DBG_Addr     (0xe000edf0)
+
 
 
 #if (DAP_PACKET_SIZE < 64U)
@@ -338,6 +345,7 @@ static uint32_t DAP_SWJ_Pins(const uint8_t *request, uint8_t *response) {
   uint32_t value;
   uint32_t select;
   uint32_t wait;
+  uint32_t readVal;
   
   value  =  *(request+0);
   select =  *(request+1); 
@@ -368,6 +376,14 @@ static uint32_t DAP_SWJ_Pins(const uint8_t *request, uint8_t *response) {
   }
   if (select & (1U << DAP_SWJ_nRESET)) {
     PIN_nRESET_OUT(value >> DAP_SWJ_nRESET);
+		if(!((value >> DAP_SWJ_nRESET) & 1)){
+			if (!swd_read_word(NVIC_AIRCR, &readVal)) {
+					return 0;
+			}
+			if (!swd_write_word(NVIC_AIRCR, VECTKEY | (readVal & SCB_AIRCR_PRIGROUP_Msk) | SYSRESETREQ)) {
+					return 0;
+			}
+		}
   }
 
   if (wait) {
